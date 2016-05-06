@@ -13,6 +13,9 @@
 
 ActiveRecord::Schema.define(version: 20150730122556) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "milestone_accomplishments", force: :cascade do |t|
     t.integer  "milestone_id"
     t.integer  "worker_id"
@@ -22,8 +25,8 @@ ActiveRecord::Schema.define(version: 20150730122556) do
     t.datetime "updated_at",   null: false
   end
 
-  add_index "milestone_accomplishments", ["milestone_id"], name: "index_milestone_accomplishments_on_milestone_id"
-  add_index "milestone_accomplishments", ["worker_id"], name: "index_milestone_accomplishments_on_worker_id"
+  add_index "milestone_accomplishments", ["milestone_id"], name: "index_milestone_accomplishments_on_milestone_id", using: :btree
+  add_index "milestone_accomplishments", ["worker_id"], name: "index_milestone_accomplishments_on_worker_id", using: :btree
 
   create_table "milestones", force: :cascade do |t|
     t.string   "name"
@@ -43,7 +46,7 @@ ActiveRecord::Schema.define(version: 20150730122556) do
     t.datetime "updated_at",                           null: false
   end
 
-  add_index "pay_rates", ["worker_id"], name: "index_pay_rates_on_worker_id"
+  add_index "pay_rates", ["worker_id"], name: "index_pay_rates_on_worker_id", using: :btree
 
   create_table "roles", force: :cascade do |t|
     t.string   "name"
@@ -53,8 +56,8 @@ ActiveRecord::Schema.define(version: 20150730122556) do
     t.datetime "updated_at"
   end
 
-  add_index "roles", ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id"
-  add_index "roles", ["name"], name: "index_roles_on_name"
+  add_index "roles", ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id", using: :btree
+  add_index "roles", ["name"], name: "index_roles_on_name", using: :btree
 
   create_table "shift_templates", force: :cascade do |t|
     t.string   "name"
@@ -77,9 +80,9 @@ ActiveRecord::Schema.define(version: 20150730122556) do
     t.integer  "shift_template_id"
   end
 
-  add_index "shifts", ["shift_template_id"], name: "index_shifts_on_shift_template_id"
-  add_index "shifts", ["task_id"], name: "index_shifts_on_task_id"
-  add_index "shifts", ["worker_id"], name: "index_shifts_on_worker_id"
+  add_index "shifts", ["shift_template_id"], name: "index_shifts_on_shift_template_id", using: :btree
+  add_index "shifts", ["task_id"], name: "index_shifts_on_task_id", using: :btree
+  add_index "shifts", ["worker_id"], name: "index_shifts_on_worker_id", using: :btree
 
   create_table "tasks", force: :cascade do |t|
     t.string   "name"
@@ -88,7 +91,7 @@ ActiveRecord::Schema.define(version: 20150730122556) do
     t.datetime "updated_at",   null: false
   end
 
-  add_index "tasks", ["workgroup_id"], name: "index_tasks_on_workgroup_id"
+  add_index "tasks", ["workgroup_id"], name: "index_tasks_on_workgroup_id", using: :btree
 
   create_table "transactions", force: :cascade do |t|
     t.integer  "amount_in_cents"
@@ -100,7 +103,7 @@ ActiveRecord::Schema.define(version: 20150730122556) do
     t.string   "transactiontype"
   end
 
-  add_index "transactions", ["worker_id"], name: "index_transactions_on_worker_id"
+  add_index "transactions", ["worker_id"], name: "index_transactions_on_worker_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
@@ -118,15 +121,15 @@ ActiveRecord::Schema.define(version: 20150730122556) do
     t.string   "name"
   end
 
-  add_index "users", ["email"], name: "index_users_on_email", unique: true
-  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
+  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
   create_table "users_roles", id: false, force: :cascade do |t|
     t.integer "user_id"
     t.integer "role_id"
   end
 
-  add_index "users_roles", ["user_id", "role_id"], name: "index_users_roles_on_user_id_and_role_id"
+  add_index "users_roles", ["user_id", "role_id"], name: "index_users_roles_on_user_id_and_role_id", using: :btree
 
   create_table "week_notes", force: :cascade do |t|
     t.text     "note"
@@ -159,8 +162,8 @@ ActiveRecord::Schema.define(version: 20150730122556) do
     t.datetime "updated_at",   null: false
   end
 
-  add_index "workgroup_memberships", ["worker_id"], name: "index_workgroup_memberships_on_worker_id"
-  add_index "workgroup_memberships", ["workgroup_id"], name: "index_workgroup_memberships_on_workgroup_id"
+  add_index "workgroup_memberships", ["worker_id"], name: "index_workgroup_memberships_on_worker_id", using: :btree
+  add_index "workgroup_memberships", ["workgroup_id"], name: "index_workgroup_memberships_on_workgroup_id", using: :btree
 
   create_table "workgroups", force: :cascade do |t|
     t.string   "name"
@@ -168,4 +171,14 @@ ActiveRecord::Schema.define(version: 20150730122556) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "milestone_accomplishments", "milestones"
+  add_foreign_key "milestone_accomplishments", "workers"
+  add_foreign_key "pay_rates", "workers"
+  add_foreign_key "shifts", "shift_templates"
+  add_foreign_key "shifts", "tasks"
+  add_foreign_key "shifts", "workers"
+  add_foreign_key "tasks", "workgroups"
+  add_foreign_key "transactions", "workers"
+  add_foreign_key "workgroup_memberships", "workers"
+  add_foreign_key "workgroup_memberships", "workgroups"
 end
